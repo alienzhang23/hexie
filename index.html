@@ -284,8 +284,8 @@
 <body>
   <div class="wrap">
     <h1>使用文明用语，创建和谐社会</h1>
-    <p class="sub">把脏话换成谐音字，让平台检测系统稍微歇一会儿。</p>
-    <p class="sub" style="margin-bottom:0">仅供语言自娱与技术研究。真正想骂人时，对方听到的永远是原意。</p>
+    <p class="sub">用常见形近字把脏话换掉，不用繁体、不用生僻字，平台不一定拦得住，人一看就懂。</p>
+    <p class="sub" style="margin-bottom:0">仅供语言自娱。这类写法存在的意义就是留一条「我可没骂人」的后路，对着真人用的时候，对方看到的永远是原意。</p>
 
     <div class="tabs">
       <button class="tab on" data-tab="random">随机一句</button>
@@ -296,16 +296,18 @@
     <div class="random-panel" id="panel-random">
       <div class="filters" id="level-filters">
         <button class="chip on" data-lv="0">全部</button>
-        <button class="chip" data-lv="1">轻度</button>
-        <button class="chip" data-lv="2">中度</button>
-        <button class="chip" data-lv="3">重度</button>
+        <button class="chip" data-lv="2">大杯</button>
+        <button class="chip" data-lv="3">特大杯</button>
+        <label style="margin-left:8px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="opt-zw-random" checked> 插入零宽字符
+        </label>
       </div>
 
       <div class="card" id="card">
-        <div class="level-tag" id="level-tag">轻度 <span class="on"></span><span></span><span></span></div>
+        <div class="level-tag" id="level-tag">大杯 <span></span><span class="on"></span><span></span></div>
         <div class="card-split">
           <div class="side">
-            <div class="label">谐音版（可复制）</div>
+            <div class="label">形近版（可复制）</div>
             <p class="main-text" id="safe-text">草泥马</p>
           </div>
           <div class="side">
@@ -313,7 +315,7 @@
             <p class="main-text" id="orig-text" style="color:var(--muted);font-size:clamp(16px,2.6vw,20px)">操你妈</p>
           </div>
         </div>
-        <div class="meta" id="op-text">原词 → 谐音：操 → 草 ；妈 → 马</div>
+        <div class="meta" id="op-text">原词 → 形近：操 → 草 ；妈 → 马</div>
       </div>
 
       <div class="actions">
@@ -330,10 +332,11 @@
     <div class="converter" id="panel-convert">
       <div class="card" style="padding:24px 22px">
         <div class="label" style="margin-bottom:12px">输入原文（含脏话）</div>
-        <textarea id="input-text" placeholder="在这里粘贴或输入要转换的文字，例如：你这个傻逼，去你妈的……"></textarea>
+        <textarea id="input-text" placeholder="在这里粘贴或输入要转换的文字，例如：操你妈的傻逼，操你全家……"></textarea>
 
         <div class="opts">
-          <label><input type="checkbox" id="opt-random" checked> 随机选择谐音变体</label>
+          <label><input type="checkbox" id="opt-random" checked> 随机选择形近变体</label>
+          <label><input type="checkbox" id="opt-zw" checked> 插入零宽字符</label>
           <label><input type="checkbox" id="opt-keep" checked> 保留原标点与空格</label>
         </div>
 
@@ -348,7 +351,7 @@
     </div>
 
     <p class="disclaimer">
-      仅供语言学习与自娱。这类谐音存在的意义就是留一条「我可没骂人」的后路。<br>
+      仅供语言学习与自娱。这类形近字写法存在的意义就是留一条「我可没骂人」的后路。<br>
       平台检测规则会不断更新，任何替换都无法保证 100% 通过。请为自己的言论负责。
     </p>
   </div>
@@ -356,100 +359,82 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    /* ==================== 谐音词典 ==================== */
-    // 每个敏感词对应一组可替换的谐音/形近/变体
+    /* ==================== 形近字替换词典（简体 + 常见形近，不用繁体/生僻） ==================== */
     const DICT = {
-      "操": ["草", "艹", "曹", "糙", "肏"],
-      "妈": ["马", "麻", "码", "玛", "吗"],
-      "逼": ["比", "币", "B", "逼", "闭"],
-      "傻逼": ["傻B", "沙比", "煞笔", "傻比", "沙币", "sb", "SB"],
-      "你妈": ["你马", "尼玛", "你麻", "泥马", "nima"],
-      "他妈": ["他马", "特么", "他妈", "tama"],
-      "妈的": ["马的", "麻的", "码的"],
-      "滚蛋": ["滚蛋", "滚单", "衮蛋"],
-      "去死": ["去4", "去撕", "去死"],
-      "死": ["4", "撕", "si"],
+      "操": ["草", "曹", "槽", "糙", "搓"],
+      "妈": ["马", "麻", "码", "吗", "玛"],
+      "逼": ["比", "币", "B", "闭", "臂"],
+      "傻逼": ["傻B", "沙比", "煞笔", "傻比", "沙币"],
+      "你妈": ["你马", "尼玛", "你麻", "泥马", "你码"],
+      "他妈": ["他马", "特么", "他麻", "特马"],
+      "鸡巴": ["几把", "鸡吧", "几巴", "JB", "jiba"],
+      "屌": ["吊", "鸟", "屌"],
       "日": ["曰", "ri", "R"],
-      "艹": ["草", "曹", "操"],
-      "靠": ["尻", "烤", "考"],
-      "屁": ["批", "pi"],
-      "蛋": ["弹", "单"],
-      "屎": ["shi", "史", "使"],
-      "尿": ["niao", "鸟"],
-      "鸡巴": ["鸡吧", "几把", "jiba", "JB"],
-      "鸡鸡": ["几几", "jiji"],
-      "屌": ["吊", "diao", "鸟"],
-      "肏": ["操", "草", "艹"],
-      "杂种": ["杂仲", "砸种"],
-      "畜生": ["畜牲", "触生"],
-      "贱人": ["贱忍", "见人"],
-      "婊子": ["表子", "裱子"],
-      "狗日": ["狗ri", "苟日"],
-      "草泥马": ["草泥马", "草泥瑪", "艹泥马"],
-      "卧槽": ["我草", "卧艹", "沃槽", "wocao"],
-      "我靠": ["我尻", "我烤"],
-      "尼玛": ["你马", "泥马", "nima"],
-      "特么": ["特么", "特马", "他妈"],
+      "死": ["4", "撕", "si"],
+      "狗": ["苟", "勾", "够", "狗"],
+      "全家": ["全家", "全架", "全加"],
+      "婊子": ["表子", "裱子", "表仔"],
+      "杂种": ["杂仲", "砸种", "杂钟"],
+      "畜生": ["畜牲", "触生", "畜生"],
+      "脑残": ["脑参", "脑残", "nao残"],
+      "智障": ["智帐", "致障", "智章"],
+      "废物": ["废五", "费物", "废武"],
+      "滚": ["衮", "辊", "滚"],
+      "妈的": ["马的", "麻的", "码的"],
+      "你妈的": ["你马的", "尼玛的", "你麻的"],
+      "操你妈": ["草你马", "曹尼玛", "槽你麻", "搓你码"],
+      "操你全家": ["草你全家", "曹你全架", "槽你全加"],
+      "去你妈的": ["去你马的", "去尼玛的", "去你麻的"],
       "妈卖批": ["马卖比", "麻卖B", "码卖币"],
-      "傻叉": ["傻X", "沙叉", "煞叉"],
-      "脑残": ["脑参", "nao残"],
-      "智障": ["智帐", "致障"],
-      "废物": ["废物", "费物"],
-      "垃圾": ["拉极", "laji", "垃计"]
+      "卧槽": ["我草", "卧曹", "沃槽", "我糙"],
+      "我靠": ["我尻", "我烤", "我靠"],
+      "狗日": ["苟曰", "勾日", "够曰"],
+      "日你": ["曰你", "ri你"]
     };
 
-    // 预置随机句子（谐音版 + 原意 + 说明 + 强度）
+    // 预置句子：大杯 / 特大杯，全部简体形近字，力度保留
     const DATA = [
-      // 轻度 lv:1
-      { safe: "草泥马", orig: "操你妈", op: "操 → 草 ；妈 → 马", lv: 1 },
-      { safe: "去你马的", orig: "去你妈的", op: "妈 → 马", lv: 1 },
-      { safe: "傻B", orig: "傻逼", op: "逼 → B", lv: 1 },
-      { safe: "沙比", orig: "傻逼", op: "傻 → 沙 ；逼 → 比", lv: 1 },
-      { safe: "尼玛", orig: "你妈", op: "你妈 → 尼玛", lv: 1 },
-      { safe: "特么的", orig: "他妈的", op: "他妈 → 特么", lv: 1 },
-      { safe: "卧艹", orig: "卧槽", op: "槽 → 艹", lv: 1 },
-      { safe: "我尻", orig: "我靠", op: "靠 → 尻", lv: 1 },
-      { safe: "滚蛋", orig: "滚蛋", op: "蛋 → 蛋（同形）/ 单", lv: 1 },
-      { safe: "去4", orig: "去死", op: "死 → 4", lv: 1 },
-      { safe: "草你马", orig: "操你妈", op: "操 → 草 ；妈 → 马", lv: 1 },
-      { safe: "傻比一个", orig: "傻逼一个", op: "逼 → 比", lv: 1 },
-      { safe: "你这个沙币", orig: "你这个傻逼", op: "傻 → 沙 ；逼 → 币", lv: 1 },
-      { safe: "麻痹的", orig: "妈逼的", op: "妈 → 麻 ；逼 → 痹", lv: 1 },
-      { safe: "日了狗了", orig: "日了狗了", op: "日 保留（平台有时不拦）", lv: 1 },
-
-      // 中度 lv:2
-      { safe: "草你马的逼", orig: "操你妈的逼", op: "操 → 草 ；妈 → 马", lv: 2 },
-      { safe: "你马卖批", orig: "你妈卖批", op: "妈 → 马 ；批 保留", lv: 2 },
+      // 大杯 lv:2
+      { safe: "草你马的比", orig: "操你妈的逼", op: "操 → 草 ；妈 → 马 ；逼 → 比", lv: 2 },
       { safe: "去你马的傻B", orig: "去你妈的傻逼", op: "妈 → 马 ；逼 → B", lv: 2 },
-      { safe: "特么的智障", orig: "他妈的智障", op: "他妈 → 特么", lv: 2 },
-      { safe: "卧艹你这个沙比", orig: "卧槽你这个傻逼", op: "槽 → 艹 ；傻 → 沙 ；逼 → 比", lv: 2 },
-      { safe: "滚你马的蛋", orig: "滚你妈的蛋", op: "妈 → 马", lv: 2 },
-      { safe: "你这个脑参", orig: "你这个脑残", op: "残 → 参", lv: 2 },
-      { safe: "草泥马的傻叉", orig: "操你妈的傻叉", op: "操 → 草 ；妈 → 马", lv: 2 },
-      { safe: "尼玛的废物", orig: "你妈的废物", op: "你妈 → 尼玛", lv: 2 },
-      { safe: "我草你马", orig: "我操你妈", op: "操 → 草 ；妈 → 马", lv: 2 },
-      { safe: "日你仙人", orig: "日你仙人", op: "经典台湾谐音用法", lv: 2 },
-      { safe: "你马的几把", orig: "你妈的鸡巴", op: "妈 → 马 ；鸡巴 → 几把", lv: 2 },
-      { safe: "沙比玩意儿", orig: "傻逼玩意儿", op: "傻 → 沙 ；逼 → 比", lv: 2 },
-      { safe: "艹尼玛", orig: "操你妈", op: "操 → 艹 ；你妈 → 尼玛", lv: 2 },
-      { safe: "特么智帐", orig: "他妈智障", op: "他妈 → 特么 ；障 → 帐", lv: 2 },
+      { safe: "曹尼玛的几把", orig: "操你妈的鸡巴", op: "操 → 曹 ；你妈 → 尼玛 ；鸡巴 → 几把", lv: 2 },
+      { safe: "我曰你仙人", orig: "我日你仙人", op: "日 → 曰（形近）", lv: 2 },
+      { safe: "特么的苟曰的", orig: "他妈的狗日的", op: "他妈 → 特么 ；狗 → 苟 ；日 → 曰", lv: 2 },
+      { safe: "你这个沙比玩意儿", orig: "你这个傻逼玩意儿", op: "傻 → 沙 ；逼 → 比", lv: 2 },
+      { safe: "衮你马的蛋", orig: "滚你妈的蛋", op: "滚 → 衮 ；妈 → 马", lv: 2 },
+      { safe: "尼玛的废五", orig: "你妈的废物", op: "你妈 → 尼玛 ；废物 → 废五", lv: 2 },
+      { safe: "草你全家", orig: "操你全家", op: "操 → 草", lv: 2 },
+      { safe: "我草你这个脑参", orig: "卧槽你这个脑残", op: "卧槽 → 我草 ；残 → 参", lv: 2 },
+      { safe: "去你麻的臭表子", orig: "去你妈的臭婊子", op: "妈 → 麻 ；婊 → 表", lv: 2 },
+      { safe: "我槽你马", orig: "我操你妈", op: "操 → 槽 ；妈 → 马", lv: 2 },
+      { safe: "你马卖比", orig: "你妈卖批", op: "妈 → 马 ；批 → 比", lv: 2 },
+      { safe: "沙比尼玛的", orig: "傻逼你妈的", op: "傻 → 沙 ；逼 → 比 ；你妈 → 尼玛", lv: 2 },
+      { safe: "曰了苟了你", orig: "日了狗了你", op: "日 → 曰 ；狗 → 苟", lv: 2 },
+      { safe: "你这个智帐", orig: "你这个智障", op: "障 → 帐（形近）", lv: 2 },
+      { safe: "草你马的臭比", orig: "操你妈的臭逼", op: "操 → 草 ；妈 → 马 ；逼 → 比", lv: 2 },
+      { safe: "我尻你这个杂仲", orig: "我靠你这个杂种", op: "靠 → 尻 ；种 → 仲", lv: 2 },
 
-      // 重度 lv:3
-      { safe: "草泥马逼", orig: "操你妈逼", op: "操 → 草 ；妈 → 马", lv: 3 },
-      { safe: "去你马卖批", orig: "去你妈卖批", op: "妈 → 马", lv: 3 },
-      { safe: "我草你马的傻B", orig: "我操你妈的傻逼", op: "操 → 草 ；妈 → 马 ；逼 → B", lv: 3 },
-      { safe: "尼玛的几把玩意", orig: "你妈的鸡巴玩意", op: "你妈 → 尼玛 ；鸡巴 → 几把", lv: 3 },
-      { safe: "卧艹你这个脑参沙比", orig: "卧槽你这个脑残傻逼", op: "多重替换", lv: 3 },
-      { safe: "草你马的臭沙币", orig: "操你妈的臭傻逼", op: "操 → 草 ；妈 → 马 ；傻 → 沙 ；逼 → 币", lv: 3 },
-      { safe: "特么的狗日的", orig: "他妈的狗日的", op: "他妈 → 特么", lv: 3 },
-      { safe: "你马的劳资草死你", orig: "你妈的劳资操死你", op: "妈 → 马 ；操 → 草", lv: 3 },
-      { safe: "艹你马卖批的", orig: "操你妈卖批的", op: "操 → 艹 ；妈 → 马", lv: 3 },
-      { safe: "沙比尼玛的", orig: "傻逼你妈的", op: "傻 → 沙 ；逼 → 比 ；你妈 → 尼玛", lv: 3 },
-      { safe: "我日你仙人板板", orig: "我日你仙人板板", op: "经典加强版", lv: 3 },
-      { safe: "草泥马的几把毛", orig: "操你妈的鸡巴毛", op: "操 → 草 ；妈 → 马 ；鸡巴 → 几把", lv: 3 },
-      { safe: "去你马的臭表子", orig: "去你妈的臭婊子", op: "妈 → 马 ；婊 → 表", lv: 3 },
-      { safe: "特么的畜生不如", orig: "他妈的畜生不如", op: "他妈 → 特么", lv: 3 },
-      { safe: "尼玛逼的智帐", orig: "你妈逼的智障", op: "你妈 → 尼玛 ；障 → 帐", lv: 3 }
+      // 特大杯 lv:3
+      { safe: "草你马的比，你这个傻B", orig: "操你妈的逼，你这个傻逼", op: "操 → 草 ；妈 → 马 ；逼 → 比/B", lv: 3 },
+      { safe: "去你马的，草你全家", orig: "去你妈的，操你全家", op: "妈 → 马 ；操 → 草", lv: 3 },
+      { safe: "我曹尼玛的几把毛", orig: "我操你妈的鸡巴毛", op: "操 → 曹 ；你妈 → 尼玛 ；鸡巴 → 几把", lv: 3 },
+      { safe: "你这个苟曰的沙比，衮远点", orig: "你这个狗日的傻逼，滚远点", op: "狗 → 苟 ；日 → 曰 ；傻 → 沙 ；逼 → 比 ；滚 → 衮", lv: 3 },
+      { safe: "草你马卖比的，智帐一个", orig: "操你妈卖批的，智障一个", op: "操 → 草 ；妈 → 马 ；批 → 比 ；障 → 帐", lv: 3 },
+      { safe: "我草，你全家都是畜牲", orig: "卧槽，你全家都是畜生", op: "卧槽 → 我草 ；畜生 → 畜牲", lv: 3 },
+      { safe: "我曰你仙人板板，沙比", orig: "我日你仙人板板，傻逼", op: "日 → 曰 ；傻 → 沙 ；逼 → 比", lv: 3 },
+      { safe: "去你麻的臭表子，草你全架", orig: "去你妈的臭婊子，操你全家", op: "妈 → 麻 ；婊 → 表 ；操 → 草 ；全家 → 全架", lv: 3 },
+      { safe: "你马的几把被车轧了", orig: "你妈的鸡巴被车轧了", op: "妈 → 马 ；鸡巴 → 几把", lv: 3 },
+      { safe: "槽你马的比，脑参傻B", orig: "操你妈的逼，脑残傻逼", op: "操 → 槽 ；妈 → 马 ；逼 → 比 ；残 → 参", lv: 3 },
+      { safe: "特么的苟曰傻B，给我衮", orig: "他妈的狗日傻逼，给我滚", op: "他妈 → 特么 ；狗 → 苟 ；日 → 曰 ；逼 → B ；滚 → 衮", lv: 3 },
+      { safe: "草你全家上下十八代", orig: "操你全家上下十八代", op: "操 → 草", lv: 3 },
+      { safe: "尼玛的吊，被苟曰了吧", orig: "你妈的屌，被狗日了吧", op: "你妈 → 尼玛 ；屌 → 吊 ；狗 → 苟 ；日 → 曰", lv: 3 },
+      { safe: "你这个杂仲畜牲，草你马", orig: "你这个杂种畜生，操你妈", op: "种 → 仲 ；畜生 → 畜牲 ；操 → 草 ；妈 → 马", lv: 3 },
+      { safe: "我搓死你这个沙比", orig: "我操死你这个傻逼", op: "操 → 搓 ；傻 → 沙 ；逼 → 比", lv: 3 },
+      { safe: "去你马的4吧，废五一个", orig: "去你妈的死吧，废物一个", op: "妈 → 马 ；死 → 4 ；废物 → 废五", lv: 3 },
+      { safe: "曹尼玛比的，全家都该曰", orig: "操你妈逼的，全家都该日", op: "操 → 曹 ；你妈 → 尼玛 ；逼 → 比 ；日 → 曰", lv: 3 },
+      { safe: "你马被草烂的表子", orig: "你妈被操烂的婊子", op: "妈 → 马 ；操 → 草 ；婊 → 表", lv: 3 },
+      { safe: "沙比，草你马的臭比穴", orig: "傻逼，操你妈的臭逼穴", op: "傻 → 沙 ；逼 → 比 ；操 → 草 ；妈 → 马", lv: 3 },
+      { safe: "我曰你仙人，你全家埋一起", orig: "我日你仙人，你全家埋一起", op: "日 → 曰", lv: 3 }
     ];
 
     /* ==================== 工具函数 ==================== */
@@ -494,20 +479,35 @@
     }
 
     function renderLevelTag(lv) {
-      const names = { 1: "轻度", 2: "中度", 3: "重度" };
-      const dots = [1, 2, 3].map(i => `<span class="${i <= lv ? "on" : ""}"></span>`).join("");
+      const names = { 2: "大杯", 3: "特大杯" };
+      // 大杯亮2个点，特大杯亮3个点
+      const dots = [1, 2, 3].map(i => {
+        if (lv === 2) return `<span class="${i <= 2 ? "on" : ""}"></span>`;
+        return `<span class="${i <= 3 ? "on" : ""}"></span>`;
+      }).join("");
       document.getElementById("level-tag").innerHTML = `${names[lv] || ""} ${dots}`;
+    }
+
+    // 在字符之间插入零宽空格（U+200B），打断连续敏感词匹配
+    function insertZeroWidth(str) {
+      if (!str) return str;
+      // 只在汉字/字母数字之间插入，避免标点前后乱插
+      return str.split("").join("\u200b");
     }
 
     function showCurrent() {
       if (!pool.length) return;
       const item = pool[idx % pool.length];
-      document.getElementById("safe-text").textContent = item.safe;
+      const useZw = document.getElementById("opt-zw-random")?.checked;
+      const displaySafe = useZw ? insertZeroWidth(item.safe) : item.safe;
+      document.getElementById("safe-text").textContent = displaySafe;
       document.getElementById("orig-text").textContent = item.orig;
-      document.getElementById("op-text").textContent = "原词 → 谐音：" + item.op;
+      document.getElementById("op-text").textContent = "原词 → 形近：" + item.op + (useZw ? " ＋ 零宽字符" : "");
       renderLevelTag(item.lv);
       viewed.add(item.safe + item.orig);
       document.getElementById("counter").textContent = `已浏览 ${viewed.size} / ${pool.length} 句`;
+      // 把当前可复制文本存一下，方便复制时带零宽
+      window._currentSafe = displaySafe;
     }
 
     function roll() {
@@ -517,7 +517,7 @@
     }
 
     /* ==================== 实时转换逻辑 ==================== */
-    function convertText(raw, randomPick = true) {
+    function convertText(raw, randomPick = true, useZw = true) {
       if (!raw.trim()) return "";
 
       // 按长度降序，优先匹配长词
@@ -529,10 +529,11 @@
         if (!variants || !variants.length) continue;
         const re = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
         result = result.replace(re, () => {
-          if (randomPick) {
-            return variants[Math.floor(Math.random() * variants.length)];
-          }
-          return variants[0];
+          let rep = randomPick
+            ? variants[Math.floor(Math.random() * variants.length)]
+            : variants[0];
+          if (useZw) rep = insertZeroWidth(rep);
+          return rep;
         });
       }
       return result;
@@ -563,15 +564,22 @@
 
     document.getElementById("btn-roll").addEventListener("click", roll);
     document.getElementById("btn-copy").addEventListener("click", async () => {
-      const text = document.getElementById("safe-text").textContent;
+      const text = window._currentSafe || document.getElementById("safe-text").textContent;
+      const useZw = document.getElementById("opt-zw-random")?.checked;
       const ok = await copyText(text);
-      toast(ok ? "已复制：" + text : "复制失败，请手动选择");
+      toast(ok ? (useZw ? "已复制（含零宽字符）" : "已复制") : "复制失败，请手动选择");
+    });
+
+    // 零宽开关变化时刷新当前句子
+    document.getElementById("opt-zw-random")?.addEventListener("change", () => {
+      showCurrent();
     });
 
     document.getElementById("btn-convert").addEventListener("click", () => {
       const raw = document.getElementById("input-text").value;
       const random = document.getElementById("opt-random").checked;
-      const result = convertText(raw, random);
+      const useZw = document.getElementById("opt-zw").checked;
+      const result = convertText(raw, random, useZw);
       document.getElementById("result-box").textContent = result || "（无内容）";
     });
 
